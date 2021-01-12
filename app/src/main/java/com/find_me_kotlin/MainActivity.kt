@@ -7,7 +7,6 @@ import android.os.Bundle
 import android.os.Handler
 import android.provider.Settings
 import android.telephony.SmsManager
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -17,7 +16,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 class MainActivity : AppCompatActivity() {
 
     private val MY_PERMISSIONS_REQUEST_SEND_SMS = 0
-     val TURONLOCATION = "Включите доступ к местоположению"
+    private val TURONLOCATION = "Включите доступ к местоположению"
     private val SEND = "Сообщение отправлено"
     private val SMS_FAILED = "Сообщение не отправлено, попробуйте позже"
     private val COPYCOORDS = "Координаты скопированы"
@@ -25,24 +24,22 @@ class MainActivity : AppCompatActivity() {
     private val PREFERENCES = "PREFERENCES"
     private val PHONE_NUMBER = "phone"
 
+
     private val CHOOSEPHONENUMBER = "Пожалуйста, выберите номер получателя"
-    internal lateinit var sharedPreferences: SharedPreferences
-    internal val REQUEST_CODE_ASK_PERMISSIONS = 123
-    internal val LOCATION_SETTINGS_REQUEST = 1
+    private lateinit var sharedPreferences: SharedPreferences
+
+    private val LOCATION_SETTINGS_REQUEST = 1
 
     internal var name: String?=null
 
-    lateinit var lampLiting: Runnable
+    private lateinit var lampLiting: Runnable
     internal var i = 0
 
-    internal var latitude: String?=null
-    internal var longitude: String?=null
+    private var latitude: String?=null
+    private var longitude: String?=null
 
+    private var switchGPS = false
 
-
-    fun setPhoneNo(phoneNo: String) {
-        this.phoneNo = phoneNo
-    }
 
     fun setLatitude(latitude: String) {
         this.latitude = latitude
@@ -54,7 +51,7 @@ class MainActivity : AppCompatActivity() {
 
     private var phoneNo: String? = null
     private var message: String? = null
-    lateinit var geoLocationFinder: GeoLocationFinder
+    private lateinit var geoLocationFinder: GeoLocationFinder
     internal var isPressed = false
 
     val handler = Handler()
@@ -115,7 +112,7 @@ class MainActivity : AppCompatActivity() {
         showContact(contactName,phoneNo)
     }
 
-    internal fun showContact(contactName:String?,phoneNo: String?) {
+    private fun showContact(contactName:String?, phoneNo: String?) {
         if ((phoneNo==null) and (contactName==null)){
             dialing_a_number.text = "Номер не выбран"
             name_view.text = "Контакт не выбран"
@@ -208,28 +205,18 @@ class MainActivity : AppCompatActivity() {
     }
     private fun getGeoPosition() {
         geoLocationFinder = GeoLocationFinder(this@MainActivity)
-
-       // geoLocationFinder.getLocation()
         geoLocationFinder.getLastLocation()
     }
 
     fun startActivityTurnOnLocation() {
 
         Toast.makeText(this, TURONLOCATION, Toast.LENGTH_LONG).show()
+        switchGPS = true
         val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
         startActivityForResult(intent, LOCATION_SETTINGS_REQUEST)
     }
 
-
-    private fun savePhoneNumber(number: String, name: String) {
-        val editor = sharedPreferences.edit()
-        editor.putString("phone", number)
-        editor.putString("name", name)
-        editor.apply()
-
-    }
-
-    fun setTextToTetxView(latitude:String,longitude: String){
+    fun setTextToTextView(latitude:String, longitude: String){
         latitude_view.text = latitude
         longitude_view.text = longitude
     }
@@ -241,4 +228,16 @@ class MainActivity : AppCompatActivity() {
             lampView.setImageResource(R.drawable.lamp)
         }
     }
+
+    override fun onResume() {
+        super.onResume()
+        when(switchGPS){
+            true-> {
+                getGeoPosition()
+                switchGPS=false
+            }
+
+        }
+    }
+
 }

@@ -17,7 +17,12 @@ import java.util.*
 class NumberHolderActivity : AppCompatActivity() {
     private val REQUEST_CODE_ASK_PERMISSIONS = 123
     private val NUMBER_ADD = "Добавлен номер: "
-    private val PREFERENCES = "PREFERENCES"
+    private val PREFERENCES = "PREFERENSES"
+    val nameString = "name"
+    val phoneString = "phone"
+    val nocontact = "Контакт не выбран"
+    val nonumber = "Номер не выбран"
+    val notinlist = "Нет в списке"
 
 
 
@@ -36,8 +41,8 @@ class NumberHolderActivity : AppCompatActivity() {
     private fun init() {
 
         sharedPreferences = this.getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE)
-        val name :String? = sharedPreferences.getString("name",null);
-        val phoneNo :String? = sharedPreferences.getString("phone",null);
+        val name :String? = sharedPreferences.getString(nameString,null)
+        val phoneNo :String? = sharedPreferences.getString(phoneString,null)
 
         showPhoneNumber(name,phoneNo)
 
@@ -71,11 +76,14 @@ class NumberHolderActivity : AppCompatActivity() {
                 val permissions = arrayOf(Manifest.permission.READ_CONTACTS)
                 ActivityCompat.requestPermissions(this, permissions, 0)
             }else{
-                savePhoneNumber("Нет в списке",dialing_a_number.text.toString())
+                savePhoneNumber(notinlist, dialing_a_number.text.toString())
                 dialing_a_number.visibility = View.INVISIBLE
-                showPhoneNumber(sharedPreferences.getString("name",null),
-                    sharedPreferences.getString("phone",null))
-                isPhoneDeal=false
+
+                showPhoneNumber(
+                    sharedPreferences.getString(nameString, null),
+                    sharedPreferences.getString(phoneString, null)
+                )
+                isPhoneDeal = false
             }
         }
 
@@ -132,7 +140,7 @@ class NumberHolderActivity : AppCompatActivity() {
                         if ((num!=null) and (name!=null)){
                             savePhoneNumber(name,num )
                             showPhoneNumber(name,num )
-                            Toast.makeText(this, NUMBER_ADD + num, Toast.LENGTH_LONG)
+                            Toast.makeText(this, NUMBER_ADD + num, Toast.LENGTH_SHORT)
                                 .show()
                             }
 
@@ -154,8 +162,10 @@ class NumberHolderActivity : AppCompatActivity() {
 
 
             if ((name==null) and (num==null)){
-                name_view.text = "Номер не выбран"
-                numbertextview.text = "Контакт не выбран"
+
+
+                name_view.text = nocontact
+                numbertextview.text = nonumber
             }else{
                 name_view.text = name
                 numbertextview.text = num
@@ -179,8 +189,8 @@ class NumberHolderActivity : AppCompatActivity() {
             override fun run() {
                 if (i == 3) { // just remove call backs
                     handler.removeCallbacks(this)
-                    showPhoneNumber(sharedPreferences.getString("name",null),
-                        sharedPreferences.getString("phone",null))
+                    showPhoneNumber(sharedPreferences.getString(nameString,null),
+                        sharedPreferences.getString(phoneString,null))
                     if (numberList.size>0){
                         name_view.visibility = View.INVISIBLE
                         numbertextview.visibility = View.INVISIBLE
@@ -188,8 +198,8 @@ class NumberHolderActivity : AppCompatActivity() {
 
                 } else { // post again
                     i++
-                    name_view.text = ("Контакт не выбран")
-                    numbertextview.text = ("Номер не выбран")
+                    name_view.text = (nocontact)
+                    numbertextview.text = (nonumber)
                 }
                 handler.postDelayed(this, 1000)
             }
@@ -249,9 +259,8 @@ class NumberHolderActivity : AppCompatActivity() {
 
     private fun savePhoneNumber(name: String,number: String) {
         val editor = sharedPreferences.edit()
-        editor.putString("name", name)
-        editor.putString("phone", number)
-
+        editor.putString(nameString, name)
+        editor.putString(phoneString, number)
         editor.apply()
 
     }
